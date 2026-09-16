@@ -236,7 +236,7 @@ function renderDice(){
  $('diceTitle').textContent=frame.rolling?'주사위가 굴러갑니다…':phase==='choose'?(controlsEnabled()?'오를 열을 선택하세요':'상대가 오를 열을 고르고 있어요'):phase==='bust'?'등반 실패':phase==='decide'?'계속 오를까요, 여기서 멈출까요?':phase==='ended'?'멋진 등반이었습니다':beforeStart()?'설정을 마친 뒤 처음 굴리면 시작합니다':'주사위를 굴려 이번 턴을 시작하세요';
  $('diceHint').textContent=frame.rolling?'주사위가 하나씩 공개됩니다':phase==='bust'?(frame.falling?'이번 턴의 말이 떨어집니다…':'다음 플레이어의 차례로 넘어가세요.'):phase==='choose'?(planned.length?'선택: '+planned.join(' · ')+(selectedOption()?' — 등반을 확인하세요':' — 아직 확인할 수 없는 선택입니다'):'전진할 열을 클릭하세요.'):phase==='decide'?'진행을 저장하거나 한 번 더 도전하세요.':'주사위 네 개를 보고 직접 판단하세요.';
  $('clearSelectionBtn').hidden=!planned.length||phase!=='choose'||frame.rolling;
- $('dragHelp').textContent='한 열에서 두 칸 오르려면 두 번 클릭하세요. 선택이 맞으면 왼쪽의 「등반 확인」을 누르세요.';
+ $('dragHelp').textContent='한 열에서 두 칸 오르려면 두 번 클릭하세요. 선택이 맞으면 오른쪽의 「등반 확인」을 누르세요.';
 }
 $('board').addEventListener('click',e=>{
  const column=e.target.closest('[data-column]');if(!column||!isChoosing())return;

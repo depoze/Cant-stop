@@ -100,27 +100,42 @@
 @media(max-width:760px){.sidebar{display:flex!important;flex-direction:column;width:100%}.sidebar .chat-card{order:0;width:100%;height:350px;min-height:280px}.panels-collapsed .sidebar .chat-card{height:420px}.play-area{width:100%}.panels-collapsed .turn-card h2{font-size:17px}.dice .die,.dice .die:nth-child(3){width:46px;height:46px;min-width:46px;padding:8px}.dice{gap:14px}.dice-tray #diceHint{font-size:11px}.drag-help{line-height:1.8}}
 @media(prefers-reduced-motion:reduce){.dice .die.is-rolling{transform:none!important}#fallLayer .falling-token{animation:fall-fade .35s linear both}@keyframes fall-fade{to{opacity:0}}}
 
-/* In compact landscape mode, size the board from the available height. */
+/* Keep dice and turn actions together, with a centered, height-aware table. */
+.game-layout,.topbar{max-width:1240px}
+.dice-workspace,.panels-collapsed .dice-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,190px);gap:18px;align-items:center}
+.move-controls{min-width:0}
+.move-controls .action-buttons,.panels-collapsed .move-controls .action-buttons{grid-template-columns:1fr;margin:0;gap:8px}
+.move-controls #nextBtn,.move-controls .winner-panel{margin:0}
+.dice-tray{min-width:0}
+@media(min-width:761px){.game-layout{grid-template-columns:320px minmax(0,1fr)}}
+@media(max-width:760px){
+ .dice-workspace,.panels-collapsed .dice-workspace{grid-template-columns:minmax(0,1fr) 120px;gap:10px}
+ .dice{gap:8px}
+ .dice .die,.dice .die:nth-child(3){width:36px;height:36px;min-width:36px;padding:6px;gap:2px}
+ .move-controls .action-buttons button{font-size:10px;padding:12px 6px}
+}
 @media(min-width:761px), (min-width:600px) and (orientation:landscape){
  .panels-collapsed .topbar{height:56px;padding:0 20px}
- .panels-collapsed .game-layout{display:grid;grid-template-columns:clamp(250px,28vw,380px) minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:calc(100dvh - 56px);min-height:0;padding:12px 20px;gap:16px;align-items:stretch}
+ .panels-collapsed .game-layout{display:grid;grid-template-columns:clamp(230px,25vw,320px) minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:calc(100dvh - 56px);min-height:0;padding:12px 20px;gap:16px;align-items:stretch}
  .panels-collapsed .sidebar{grid-column:1;grid-row:1;height:100%;min-height:0;align-self:stretch;gap:10px}
  .panels-collapsed .sidebar .chat-card{flex:1;height:auto;min-height:0;padding:12px}
  .panels-collapsed .chat-card .chat-messages{margin-top:8px;padding:10px}
  .panels-collapsed .chat-card #chatForm{margin-top:8px}
  .panels-collapsed .play-area{grid-column:2;grid-row:1;display:flex;flex-direction:column;min-height:0;gap:10px}
  .panels-collapsed .board-heading{flex-shrink:0;margin:0;align-items:center;gap:8px}
- .panels-collapsed .board-heading .eyebrow,.panels-collapsed .dice-panel .eyebrow,.panels-collapsed .drag-help,.panels-collapsed .table-footer{display:none}
+ .panels-collapsed .board-heading .eyebrow,.panels-collapsed .dice-panel .eyebrow{font-size:8px;letter-spacing:1px}
+ .panels-collapsed .drag-help{margin-top:8px;padding-top:8px;font-size:10px;line-height:1.5}
+ .panels-collapsed .table-footer{flex-shrink:0;margin:0;font-size:9px}
  .panels-collapsed .board-heading h2{font-size:16px;margin:0}
  .panels-collapsed .goal-chip{padding:4px 8px;font-size:9px;max-width:none}
  .panels-collapsed .board-shell{display:flex;flex-direction:column;flex:1;min-height:0;padding:10px 12px}
  .panels-collapsed .board-top{padding-bottom:6px}
  .panels-collapsed .board-bottom{padding-top:6px}
  .panels-collapsed .board{flex:1;min-height:0;padding:4px 0;gap:2px;container-type:size}
- .panels-collapsed .column{--step:clamp(7px,calc((100cqh - 54px)/13),30px);gap:2px;padding:4px 0;border-radius:18px}
+ .panels-collapsed .column{--step:max(5px,calc((100cqh - 54px)/13));--cell:clamp(3px,calc(var(--step) * .78),26px);gap:2px;padding:4px 0;border-radius:18px}
  .panels-collapsed .summit{height:14px;line-height:14px;font-size:12px}
- .panels-collapsed .spaces{gap:2px}
- .panels-collapsed .space{width:calc(var(--step) - 2px);height:calc(var(--step) - 2px)}
+ .panels-collapsed .spaces{gap:calc(var(--step) - var(--cell))}
+ .panels-collapsed .space{width:var(--cell);height:var(--cell)}
  .panels-collapsed .piece{width:clamp(5px,calc(var(--step) - 4px),18px);height:clamp(5px,calc(var(--step) - 4px),18px);border-width:1px}
  .panels-collapsed .runner{width:clamp(6px,calc(var(--step) - 2px),18px);height:clamp(7px,var(--step),22px);top:-2px}
  .panels-collapsed .runner:after{left:calc(50% - 1.5px);top:2px;width:3px;height:3px}
@@ -128,28 +143,48 @@
  .panels-collapsed .dice-panel{flex-shrink:0;margin:0;padding:10px 12px}
  .panels-collapsed .dice-panel h3{margin:0;font-size:13px;line-height:1.5}
  .panels-collapsed .dice-workspace{margin-top:5px}
- .panels-collapsed .dice{min-height:48px;gap:14px;padding:4px 0}
- .panels-collapsed .dice .die{width:40px;height:40px;min-width:40px;padding:7px}
+ .panels-collapsed .dice{min-height:60px;gap:14px;padding:4px 0}
+ .panels-collapsed .dice .die{width:52px;height:52px;min-width:52px;padding:10px}
  .panels-collapsed .dice-tray #diceHint{margin-top:5px;font-size:11px;line-height:1.5;min-height:17px}
  .panels-collapsed .turn-card{padding:12px}
  .panels-collapsed .turn-card h2{font-size:15px}
  .panels-collapsed .runner-line{right:12px;top:16px}
- .panels-collapsed .action-buttons{margin-top:10px}
+ .panels-collapsed .move-controls .action-buttons{margin:0}
  .panels-collapsed .action-buttons button{font-size:11px;padding:11px 6px}
 }
 @media(min-width:600px) and (orientation:landscape) and (max-height:600px){
  .panels-collapsed .topbar{height:44px;padding:0 12px}
- .panels-collapsed .header-tag{display:none}
  .panels-collapsed .game-layout{height:calc(100dvh - 44px);padding:8px 12px;gap:10px;grid-template-columns:clamp(230px,30vw,330px) minmax(0,1fr)}
- .panels-collapsed .board-heading,.panels-collapsed .board-top,.panels-collapsed .board-bottom{display:none}
+ .panels-collapsed .board-heading h2{font-size:12px}
+ .panels-collapsed .board-heading .eyebrow{font-size:6px;letter-spacing:.5px}
+ .panels-collapsed .board-top,.panels-collapsed .board-bottom{font-size:7px;letter-spacing:.5px;padding:2px 0}
  .panels-collapsed .board-shell{padding:4px 6px}
  .panels-collapsed .play-area{gap:6px}
  .panels-collapsed .dice-panel{padding:6px 10px}
  .panels-collapsed .dice{min-height:42px;gap:12px}
  .panels-collapsed .dice .die{width:34px;height:34px;min-width:34px;padding:6px;gap:2px}
+ .panels-collapsed .dice-workspace{grid-template-columns:minmax(0,1fr) 120px;gap:10px;margin-top:3px}
+ .panels-collapsed .dice{gap:8px}
+ .panels-collapsed .dice-panel h3{font-size:11px}
+ .panels-collapsed .dice-panel .eyebrow{font-size:6px}
+ .panels-collapsed .dice-tray #diceHint{font-size:9px;margin-top:2px;min-height:14px}
+ .panels-collapsed .drag-help{font-size:8px;margin-top:4px;padding-top:4px}
+ .panels-collapsed .table-footer,.panels-collapsed .table-footer .muted{font-size:7px;line-height:1.3}
+ .panels-collapsed .action-buttons button{font-size:10px;padding:9px 5px}
  .panels-collapsed .setup-panel{padding:6px 0 0}
  .panels-collapsed .setup-panel>label{margin-bottom:4px}
  .panels-collapsed .first-player-row{margin-bottom:6px;flex-wrap:nowrap}
  .panels-collapsed .first-player-row select{padding:5px}
  .panels-collapsed .first-player-row button{padding:5px 8px}
+ .panels-collapsed .column{--step:max(2px,calc((100cqh - 30px)/13));--cell:max(1px,calc(var(--step) * .78));padding:0;gap:1px}
+ .panels-collapsed .summit{height:8px;line-height:8px;font-size:8px}
+ .panels-collapsed .column-number{width:18px;height:18px;font-size:10px}
+ .panels-collapsed .dice-panel>.section-heading>div{display:flex;align-items:center;gap:6px}
+ .panels-collapsed .move-controls .action-buttons{gap:6px}
+ .panels-collapsed .action-buttons button{padding:6px 5px;font-size:9px}
+}
+@media(min-width:761px) and (max-width:1050px) and (min-height:601px){
+ .panels-collapsed .dice-workspace{grid-template-columns:minmax(0,1fr) 130px;gap:12px}
+ .panels-collapsed .dice{gap:10px;min-height:48px}
+ .panels-collapsed .dice .die{width:40px;height:40px;min-width:40px;padding:7px}
 }
