@@ -10,6 +10,18 @@ let room=null,player=-1,joined=false,joinData=null,planned=[],lastGame=null,busy
 let panelsCollapsed=localStorage.getItem('cantStopPanelsCollapsed')==='true';
 function beforeStart(){return !room?.game||room.game.phase==='setup';}
 function allPlayers(){return room.game?.players||room.players;}
+function playerLabel(p){return '<span class="player-label" style="--player:'+esc(p.color)+'">'+esc(p.name)+'</span>';}
+function playerText(text){
+ const names=[...allPlayers()].filter(p=>p.name).sort((a,b)=>b.name.length-a.name.length);
+ let rest=String(text),html='';
+ while(rest){
+   let match=null,index=rest.length;
+   for(const p of names){const at=rest.indexOf(p.name);if(at>=0&&at<index){match=p;index=at;}}
+   if(!match)return html+esc(rest);
+   html+=esc(rest.slice(0,index))+playerLabel(match);rest=rest.slice(index+match.name.length);
+ }
+ return html;
+}
 function runnerLimit(){return room?.settings.firstTurnPenalty&&(room.game?.turnNumber||1)===1?2:3;}
 
 function selectedOption(){
@@ -155,13 +167,13 @@ function render() {
     return '<div class="player '+((g?.turn??room.settings.firstPlayer)===i?'active':'')+'" style="--player:'+p.color+'"><i class="player-dot"></i><span class="player-name">'+esc(p.name)+'<span class="player-tag">'+(offline?'연결 끊김':room.mode==='online'&&i===player?'나':'')+'</span></span><span class="score"><b>'+count+'</b> / 3</span></div>';
   }).join('');
   $('turnNumber').textContent=beforeStart()?'준비 중':'TURN '+String(g.turnNumber).padStart(2,'0');
-  $('turnTitle').textContent=beforeStart()?'게임 시작 전':g.phase==='ended'?'정상에 도착했습니다!':g.phase==='bust'&&!frame.rolling?'등반 실패':g.players[g.turn].name+' 님의 차례';
-  $('statusText').textContent=beforeStart()?'선후공과 패널티를 정하세요. 선공 플레이어가 처음 굴리면 게임이 시작됩니다.':frame.rolling?'주사위를 굴리고 있습니다.':g.message;
+  $('turnTitle').innerHTML=beforeStart()?'게임 시작 전':g.phase==='ended'?'정상에 도착했습니다!':g.phase==='bust'&&!frame.rolling?'등반 실패':playerLabel(g.players[g.turn])+' 님의 차례';
+  $('statusText').innerHTML=beforeStart()?'선후공과 패널티를 정하세요. 선공 플레이어가 처음 굴리면 게임이 시작됩니다.':frame.rolling?'주사위를 굴리고 있습니다.':playerText(g.message);
   if(g&&room.mode==='online'&&!room.players[g.turn]?.connected&&g.phase!=='ended')$('statusText').textContent='현재 플레이어의 재접속을 기다리고 있습니다.';
   const count=Object.keys(g?.runners||{}).length,limit=runnerLimit();
   $('runnerSupply').innerHTML=Array.from({length:limit},(_,i)=>i).map(i=>'<i class="supply '+(i<count?'used':'')+'" title="'+(i<count?'보드에서 사용 중':'사용 가능')+'"></i>').join('');
   $('climbSummary').textContent=count?Object.entries(g.runners).map(([c,p])=>c+'번 +'+(p-(g.players[g.turn].progress[c]||0))).join('  ·  '):'최대 '+limit+'개의 열'+(limit===2?' · 선공 첫 턴 패널티':'을 오를 수 있어요');
-  $('activity').innerHTML=g?.log.length?g.log.slice(0,8).map(l=>'<p><small>T'+l.turn+'</small>'+esc(l.text)+'</p>').join(''):'<p class="muted">첫 등반을 기다리고 있어요.</p>';
+  $('activity').innerHTML=g?.log.length?g.log.slice(0,8).map(l=>'<p><small>T'+l.turn+'</small>'+playerText(l.text)+'</p>').join(''):'<p class="muted">첫 등반을 기다리고 있어요.</p>';
 
   const chatKey=JSON.stringify(room.chat);
   if(chatKey!==lastChat){
@@ -182,10 +194,11 @@ function render() {
   $('chatCount').textContent=room.chat.length+'개의 메시지';
   const names=allPlayers(),settings=room.settings;
   $('setupPanel').hidden=!beforeStart();
-  $('firstPlayer').innerHTML=names.map((p,i)=>'<option value="'+i+'">'+esc(p.name)+'</option>').join('');
+  $('firstPlayer').innerHTML=names.map((p,i)=>'<option value="'+i+'" style="color:'+esc(p.color)+'">'+esc(p.name)+'</option>').join('');
   $('firstPlayer').value=settings.firstPlayer;
+  $('firstPlayer').style.color=names[settings.firstPlayer]?.color||'';
   $('firstTurnPenalty').checked=settings.firstTurnPenalty;
-  $('turnOrder').textContent='순서: '+names.map((_,i)=>names[(settings.firstPlayer+i)%names.length].name).join(' → ');
+  $('turnOrder').innerHTML='순서: '+names.map((_,i)=>playerLabel(names[(settings.firstPlayer+i)%names.length])).join(' → ');
   renderBoard();renderDice();renderActions();
 }
 
@@ -200,13 +213,17 @@ function renderActions(){
  $('nextBtn').disabled=!mine||busy||!frame.fallen;
  document.querySelector('.action-buttons').hidden=(phase==='bust'&&!frame.rolling)||phase==='ended';
  $('winnerPanel').hidden=phase!=='ended';
- if(phase==='ended')$('winnerPanel').textContent='⚑ '+g.players[g.winner].name+' 님이 승리했습니다!';
+ if(phase==='ended')$('winnerPanel').innerHTML='⚑ '+playerLabel(g.players[g.winner])+' 님이 <span class="word">승리했습니다!</span>';
  $('restartBtn').disabled=!g||player<0||busy||!socket.connected||frame.rolling||room.restartVotes.includes(player);
  $('restartBtn').textContent=room?.restartVotes.length?'↻ 다시 시작 동의 '+room.restartVotes.length+'/'+room.players.length:'↻ 다시 시작 요청';
 }
 
 function renderBoard(){
  const g=visibleGame(),frame=animationFrame(),option=selectedOption();
+ const boardShell=document.querySelector('.board-shell');
+ const active=allPlayers()[g?.phase==='ended'?g.winner:(g?.turn??room.settings.firstPlayer)];
+ boardShell.style.setProperty('--active-player',active?.color||'#e6bb70');
+ boardShell.classList.toggle('game-ended',g?.phase==='ended');
  const runners=g?.phase==='bust'?(frame.falling||frame.fallen?{}:g.bustRunners||{}):g?.runners||{};
  const preview={...runners};
  for(const col of planned)preview[col]=(preview[col]??g?.players[g.turn].progress[col]??0)+1;
@@ -233,7 +250,7 @@ function renderDice(){
  const g=visibleGame(),phase=g?.phase,frame=animationFrame();
  $('dice').classList.toggle('bust-cleared',phase==='bust'&&(frame.falling||frame.fallen));
  $('dice').innerHTML=[0,1,2,3].map(i=>dieHTML(g?.dice[i],i,frame)).join('');
- $('diceTitle').textContent=frame.rolling?'주사위가 굴러갑니다…':phase==='choose'?(controlsEnabled()?'오를 열을 선택하세요':'상대가 오를 열을 고르고 있어요'):phase==='bust'?'등반 실패':phase==='decide'?'계속 오를까요, 여기서 멈출까요?':phase==='ended'?'멋진 등반이었습니다':beforeStart()?'설정을 마친 뒤 처음 굴리면 시작합니다':'주사위를 굴려 이번 턴을 시작하세요';
+ $('diceTitle').textContent=frame.rolling?'주사위가 굴러갑니다…':phase==='choose'?(controlsEnabled()?'오를 열을 선택하세요':'상대가 오를 열을 고르고 있어요'):phase==='bust'?'등반 실패':phase==='decide'?'계속 오를까요, 여기서 멈출까요?':phase==='ended'?'멋진 등반이었어요!':beforeStart()?'설정을 마친 뒤 처음 굴리면 시작합니다':'주사위를 굴려 이번 턴을 시작하세요';
  $('diceHint').textContent=frame.rolling?'주사위가 하나씩 공개됩니다':phase==='bust'?(frame.falling?'이번 턴의 말이 떨어집니다…':'다음 플레이어의 차례로 넘어가세요.'):phase==='choose'?(planned.length?'선택: '+planned.join(' · ')+(selectedOption()?' — 등반을 확인하세요':' — 아직 확인할 수 없는 선택입니다'):'전진할 열을 클릭하세요.'):phase==='decide'?'진행을 저장하거나 한 번 더 도전하세요.':'주사위 네 개를 보고 직접 판단하세요.';
  $('clearSelectionBtn').hidden=!planned.length||phase!=='choose'||frame.rolling;
  $('dragHelp').textContent='한 열에서 두 칸 오르려면 두 번 클릭하세요. 선택이 맞으면 오른쪽의 「등반 확인」을 누르세요.';

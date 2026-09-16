@@ -188,3 +188,34 @@
  .panels-collapsed .dice{gap:10px;min-height:48px}
  .panels-collapsed .dice .die{width:40px;height:40px;min-width:40px;padding:7px}
 }
+
+/* Keep Korean words intact, and use player colors consistently. */
+body{word-break:keep-all;overflow-wrap:anywhere}
+.word{white-space:nowrap}
+.player-label,.player-name{color:var(--player)}
+.board-shell{--summit-band:40px;--turn-tint:color-mix(in srgb,var(--active-player,#e6bb70) 18%,var(--cream));background:linear-gradient(to bottom,var(--turn-tint) 0 var(--summit-band),var(--cream) var(--summit-band) 100%)}
+.board-shell.game-ended{background:color-mix(in srgb,var(--active-player) 6%,#faf8f1)}
+.board-top{color:#746f65}
+
+/* Let buttons use the heading's vertical space without enlarging the panel. */
+.dice-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,190px);column-gap:18px;align-items:start}
+.dice-panel>.section-heading{grid-column:1;grid-row:1;min-width:0}
+.dice-panel .dice-workspace,.panels-collapsed .dice-panel .dice-workspace{display:contents}
+.dice-panel .dice-tray{grid-column:1;grid-row:2;margin-top:22px}
+.dice-panel .move-controls{grid-column:2;grid-row:1 / span 2;align-self:stretch;display:flex;flex-direction:column}
+.dice-panel .move-controls .action-buttons{flex:1;grid-template-rows:1fr 1fr}
+.dice-panel .move-controls .action-buttons button{height:100%;padding-block:8px}
+.dice-panel .move-controls #nextBtn,.dice-panel .move-controls .winner-panel{margin-block:auto}
+.dice-panel .drag-help{grid-column:1 / -1;grid-row:3}
+@media(min-width:761px), (min-width:600px) and (orientation:landscape){
+ .panels-collapsed .dice-panel .dice-tray{margin-top:5px}
+}
+@media(max-width:760px), (min-width:761px) and (max-width:1050px) and (min-height:601px){
+ .dice-panel{grid-template-columns:minmax(0,1fr) 120px;column-gap:10px}
+}
+@media(min-width:600px) and (orientation:landscape) and (max-height:600px){
+ .panels-collapsed .board-shell{--summit-band:20px}
+ .panels-collapsed .dice-panel{grid-template-columns:minmax(0,1fr) 120px;column-gap:10px}
+ .panels-collapsed .dice-panel .dice-tray{margin-top:3px}
+ .panels-collapsed .dice-panel>.section-heading>div{display:block}
+}
